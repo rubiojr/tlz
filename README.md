@@ -8,7 +8,7 @@ This package is designed to be used with Risor. Make sure you have Risor install
 
 ## Basic Usage
 
-```risor
+```Go
 import tlz
 
 # Create a new Timelinize client.
