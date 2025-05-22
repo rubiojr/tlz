@@ -60,23 +60,26 @@ func _request(method, url, headers=0, data=0) {
   return fetch(url, opts)
 }
 
-// new_client creates a client for interacting with the Timelinize API
+// new_client creates a client for interacting with the Timelinize API.
 // Parameters:
 // - base_url: The base URL of the Timelinize server (e.g., "http://localhost:12002")
 // - repo_id: Repository ID to perform operations on (must exist)
 // Returns: A client object with methods to interact with the Timelinize API
+// @global.function
 func new_client(base_url, repo_id) {
+  @object.class
   client := {
     base_url: base_url,
     repo_id: repo_id,
   }
 
-  // import_files imports files into a specified data source in the repository
+  // import_files imports files into a specified data source in the repository.
   // Parameters:
   // - data_source: Name of the data source
   // - filenames: List of files to import
   // - processing_options: Options controlling how data is processed during import
   // Returns: An HTTP response object
+  // @object.method
   client.import_files = func(data_sources, filenames, opts) {
     _import_files(base_url, repo_id, data_sources, filenames, opts)
   }
@@ -84,6 +87,7 @@ func new_client(base_url, repo_id) {
   // open_repositories lists all open repositories
   // Parameters: None
   // Returns: An HTTP response object. Call .json() to parse the response
+  // @object.method
   client.open_repositories = func() {
     _request("GET", '{base_url}/api/open-repositories')
   }
@@ -91,6 +95,7 @@ func new_client(base_url, repo_id) {
   // file_selector_roots retrieves file selector roots from the API
   // Parameters: None
   // Returns: An HTTP response object. Call .json() to parse the response
+  // @object.method
   client.file_selector_roots = func() {
     _request("GET", '{base_url}/api/file-selector-roots')
   }
@@ -100,10 +105,12 @@ func new_client(base_url, repo_id) {
   // - path: The filesystem path where the repository lives
   // - create: Boolean indicating whether to create the repository if it doesn't exist
   // Returns: An HTTP response object. Call .json() to parse the response
+  // @object.method
   client.open_repository = func(path, create) {
     _request("GET", '{base_url}/api/open-repository', 0, {repo_path: path, create: create})
   }
 
+  // @object.method
   // search_items searches for items in the repository
   // Parameters:
   // - repo: Repository ID
@@ -112,6 +119,7 @@ func new_client(base_url, repo_id) {
   //   - data_text: Array of strings for exact text matching
   //   - semantic_text: String for semantic search
   // Returns: An HTTP response object. Call .json() to parse the response
+  // @object.method
   client.search_items = func(repo, opts) {
     opts.repo = repo
     _request("GET", '{base_url}/api/search-items', 0, opts)
@@ -120,6 +128,7 @@ func new_client(base_url, repo_id) {
   // datasources retrieves available data sources
   // Parameters: None
   // Returns: An HTTP response object. Call .json() to parse the response
+  // @object.method
   client.datasources = func() {
     _request("GET", '{base_url}/api/data-sources', 0, {repo: repo_id})
   }
@@ -133,6 +142,7 @@ func new_client(base_url, repo_id) {
   // - periodical
   // - classifications
   // - recent_data_sources
+  // @object.method
   client.charts = func(name) {
     _request("GET", '{base_url}/api/charts?name={name}&repo_id={repo_id}')
   }

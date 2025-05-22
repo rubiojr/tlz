@@ -1,3 +1,452 @@
+# Important rules when writing Risor code
+- Use two spaces to indent code
+- No `var` keyword for variables (use `:=`)
+- No `??` operator for null coalescing (use `coalesce()` function)
+- Module imports don't use quotes. Use `import math` and not not `import "math"`
+- Use single quotes for string interpolation: `'Hello, {name}'`
+- If-else and switch are expressions that return values
+- String interpolation with single quotes only supports simple variable substitution (`'{variable}'`). It does not support formatting specifications inside the curly braces like Python's f-strings. To format values, use the `fmt.sprintf()` function separately and concatenate the results
+- ^ is not a valid power operator in Risor. Use math.pow() function instead
+- Use os.stdin.input() to read input from the user
+- Risor doesn't have while to create loops. Always use for and range.
+- Risor doesn't have __main__ or __file__ globals
+- Risor doesn't support variadic arguments when calling or defining functions
+- Lists in Risor behave very similarly to lists in Python. Methods and indexing
+on lists are the primary way to interact with these objects. A list can store
+objects of any types, including a mix of types in one list.
+
+```go
+>>> l := ["a", 1, 2]
+["a", 1, 2]
+>>> l.append("tail")
+["a", 1, 2, "tail"]
+```
+
+Always follow the above rules.
+# Syntax
+
+The overall idea for Risor syntax is that it is like Go, but aims to be more
+concise and expressive for scripting. Variables are dynamically typed and all
+Risor object types implement an `object.Object` interface defined in Go.
+
+### Variable Declarations
+
+Variables are declared using the := operator. Unlike in Go, all variables
+are dynamically typed.
+
+```risor copy
+// Declare a variable `x` and assign the integer value 10
+x := 10
+
+// Declare a variable `y` and assign the string value "hello"
+y := "hello"
+
+// Declare a variable `array` and assign an array of integers
+array := [1, 2, 3]
+```
+
+Constant declarations are also supported:
+
+```risor copy
+const url = "https://example.com"
+```
+
+### Variable Assignment
+
+Existing variables can be set using the = operator:
+
+```risor copy
+// Declare `x`
+x := 10
+
+// Update `x` to 20
+x = 20
+```
+
+### Functions
+
+Functions in Risor are declared using the `func` keyword. Type declarations are
+not supported.
+
+```risor copy
+func last(data) {
+    if len(data) == 0 {
+        return nil
+    }
+    return data[-1]
+}
+```
+
+Default parameter values are supported, with allowed types including strings,
+integers, floats, and booleans:
+
+```risor copy
+func greet(name='world') {
+    return 'Hello, ' + name
+}
+```
+
+Unlike in Go, functions can only return a single value. You can, however, return
+a list and unpack it:
+
+```risor copy
+func swap(a, b) {
+    return [b, a]
+}
+
+x, y := swap(10, 20)
+print(x, y)  // 20 10
+```
+
+Functions may be assigned to a variable and passed as values:
+
+```risor copy
+add := func(a, b) {
+    return a + b
+}
+
+result := add(10, 20) // 30
+```
+
+### Control Flow
+
+Risor supports most forms of control flow present in Go.
+
+```risor copy
+x := 10
+threshold := 5
+if x > threshold {
+    print("greater")
+} else if x == threshold {
+    print("equal")
+} else {
+    print("lesser")
+}
+```
+
+One difference with Risor is that if-else and switch are expressions in Risor,
+meaning they evaluate to a value.
+
+```risor copy
+x := if 10 > 5 {
+    "greater"
+} else {
+    "lesser"
+}
+
+print(x)  # "greater"
+```
+
+```risor copy
+name := "Alice"
+x := switch name {
+    case "Joe":
+        "Hello, Joe"
+    default:
+        "Hello, stranger"
+}
+print(x)  # "Hello, Joe"
+```
+
+Ternary expressions are supported:
+
+```risor copy
+x := 10 > 5 ? 1 : 0
+print(x) // 1
+```
+
+### Loops
+
+Risor supports for loops and range loops in the same way as Go.
+
+```risor copy
+for i := 0; i < 5; i++ {
+    print(i)
+}
+```
+
+```risor copy
+i := 0
+for i < 5 {
+    print(i)
+    i++
+}
+```
+
+```risor copy
+array := [1, 2, 3]
+for i, value := range array {
+    print(i, value)
+}
+```
+
+```risor copy
+for {
+    print("infinite loop")
+    time.sleep(1)
+}
+```
+
+`break` and `continue` keywords are also supported.
+
+```risor copy
+for i := 0; i < 10; i++ {
+    if i == 5 {
+        break
+    }
+    print(i)
+}
+```
+
+```risor copy
+for i := 0; i < 10; i++ {
+    if i == 5 {
+        continue
+    }
+    print(i)
+}
+```
+
+### Errors
+
+Risor errors are similar to exceptions in languages like Python and Javascript.
+This makes Risor more concise and suitable for scripts, as compared to Go. A
+built-in `try` function is provided to attempt an operation and fallback to a
+default value if it fails. `try` accepts any number of functions, and the first
+one that does not raise an error has its result returned. If a non-function value
+is reached, it is returned immediately.
+
+```risor copy
+result := try(func() { error("kaboom") }, "default value")
+print(result)  # "default value"
+```
+
+Errors can be raised using the `error` function:
+
+```risor copy
+func divide(a, b) {
+    if b == 0 {
+        error("bad idea: division by zero")
+    }
+    return a / b
+}
+```
+
+Also see the [Try-Catch Error Handling](syntax#try-catch-error-handling) section
+for more information.
+
+### Pipe Expressions
+
+Risor supports pipe expressions, which allow you to chain function calls
+together. The pipe operator `|` takes the result of the expression on its left
+and passes it as the first argument to the function on its right.
+
+```risor copy
+result := "hello" | strings.to_upper
+print(result)  # "HELLO"
+```
+
+### Importing Modules
+
+Modules are imported using the `import` keyword.
+
+```risor copy
+import mymod
+
+import mymod as mod
+```
+
+By default the Risor CLI will look for modules as `.risor` files in the
+current working directory.
+
+You can also import specific attributes from a module using the `from` keyword.
+
+```risor copy
+from mymod import myfunc
+
+from mymod import myfunc as f
+```
+
+### Strings
+
+Simple strings are declared using double quotes, as in Go:
+
+```risor copy
+s := "hello"
+```
+
+Multiline, raw strings are also supported using backticks:
+
+```risor copy
+s := `
+"one"
+"two"
+`
+```
+
+Templated strings are defined using single quotes, and variables are interpolated
+between curly braces:
+
+```risor copy
+name := "Joe"
+s := 'Hello, {name}'
+```
+
+### Data Structures
+
+Risor supports lists, maps, and sets.
+
+```risor copy
+// Values contained in data structures can hold mixed types
+mylist := [1, "two", 3.0]
+
+// Map keys are always strings
+mymap := {
+    "one": 1,
+    "two": 2,
+    "three": 3,
+}
+
+othermap := {
+    foo: "bar" // keys can be unquoted if they are valid identifiers
+}
+
+myset := {1, 2, 3}
+```
+
+Membership tests are performed using the `in` operator:
+
+```risor copy
+mylist := [1, 2, 3]
+print(1 in mylist)  // true
+```
+
+### Comments
+
+Single-line comments are defined using `//` or `#`, and multiline comments are
+defined using `/*` and `*/`.
+
+```risor copy
+// This is a single-line comment
+
+# This is also a single-line comment
+
+/* 
+This is a multiline comment
+*/
+```
+
+### Channels
+
+Risor supports Go-style channels for concurrent communication:
+
+```risor copy
+// Create a buffered channel with capacity 1
+c := chan(1)
+
+// Send a value to the channel
+c <- "hello"
+
+// Receive a value from the channel
+x := <-c
+
+// Close a channel
+close(c)
+```
+
+Risor channels behave like Go channels in many ways, however they support sending
+and receiving any Risor object type. Also when ranging over a channel, in Risor
+you receive both the index and value of the current item.
+
+```risor copy
+func work(count) {
+    mychan := chan(5)
+    go func() {
+        for i := 0; i < count; i++ {
+            mychan <- rand.float()
+        }
+        close(mychan)
+    }()
+    return mychan
+}
+
+// Different from Go: ranging over a channel yields both the index and value
+for i, value := range work(5) {
+    print(i, value)
+}
+```
+
+### Goroutines
+
+Risor supports launching goroutines using the `go` keyword:
+
+```risor copy
+// Launch a goroutine
+go func() {
+    // Do some work
+}()
+
+// Use a channel for communication
+c := chan(1)
+go func() {
+    c <- 42
+}()
+x := <-c
+```
+
+### Spawn
+
+The `spawn` function spawns a new goroutine and returns a `thread` object. The
+thread object can be used to wait for the goroutine to finish and retrieve its
+return value.
+
+```risor copy
+// Spawn a function and wait for its result
+result := spawn(func(x) { return x * 2 }, 21).wait()
+print(result)  // 42
+
+// Spawn multiple functions
+threads := []
+for i := 0; i < 5; i++ {
+    threads.append(spawn(func(x) { return x ** 2 }, i))
+}
+results := threads.map(func(t) { t.wait() })
+print(results)  // [0, 1, 4, 9, 16]
+```
+
+### Defer
+
+The `defer` statement allows you to schedule a function call to be run after the
+current function completes:
+
+```risor copy
+func example() {
+    defer print("This will be printed last")
+    print("This will be printed first")
+}
+
+example()
+```
+
+### Try-Catch Error Handling
+
+Risor provides a `try` function for error handling:
+
+```risor copy
+result := try(
+    func() {
+        // Code that might raise an error
+        error("Something went wrong")
+    },
+    func(err) {
+        // Error handler
+        print("Caught error:", err)
+        return "fallback value"
+    }
+)
+```
+
+See the [try](builtins#try) built-in for more information.
 # Risor Language Reference Guide
 
 ## Core Syntax
@@ -359,18 +808,6 @@ for i, thread := range threads {
 }
 
 print("Results:", results)
-# Important rules when writing Risor code
-- Use two spaces to indent code
-- No `var` keyword for variables (use `:=`)
-- No `??` operator for null coalescing (use `coalesce()` function)
-- Module imports don't use quotes. Use `import math` and not not `import "math"`
-- Use single quotes for string interpolation: `'Hello, {name}'`
-- If-else and switch are expressions that return values
-- String interpolation with single quotes only supports simple variable substitution (`'{variable}'`). It does not support formatting specifications inside the curly braces like Python's f-strings. To format values, use the `fmt.sprintf()` function separately and concatenate the results
-- ^ is not a valid power operator in Risor. Use math.pow() function instead
-- Use os.stdin.input() to read input from the user
-
-Always follow the above rules.
 # Errors Module Summary
 Errors module provides functions for creating error values in Risor.
 ## Functions
@@ -525,225 +962,3 @@ Time module provides functionality for measuring and displaying time.
 * sleep(duration) - Pauses execution for specified seconds
 ## Types
 * time - Has before(t), after(t), format(layout), utc(), unix() methods
-import { Callout } from 'nextra/components';
-
-# cli
-
-Module `cli` is used to build command line apps written in the Risor. Common
-CLI features are supported, including commands, flags, arguments, usage, and
-automatic help generation.
-
-<Callout type="info" emoji="ℹ️">
-  This module is included by default in the Risor CLI, but must be
-  independently installed when using Risor as
-  a library using `go get github.com/risor-io/risor/modules/cli`
-</Callout>
-
-Behind the scenes, this module uses the [urfave/cli](https://cli.urfave.org/) library.
-
-## Getting Started
-
-Create a file named `myapp.risor` with the following contents. Note that you
-must include the shebang line including `--` at the top of the file to ensure
-that arguments and options are _passed to the app_, rather than being used as
-options by the Risor binary itself.
-
-```risor copy filename="myapp.risor"
-#!/usr/bin/env risor --
-
-from cli import app, command as c
-
-app({
-    name: "myapp",
-    description: "My app description",
-    commands: [
-        c({
-            name: "hello",
-            description: "Say hello",
-            action: func(ctx) {
-                print("Hello, world!")
-            },
-        }),
-    ],
-}).run()
-```
-
-Now make the file executable:
-
-```
-$ chmod +x ./myapp.risor
-```
-
-You can now run the app as follows:
-
-```
-$ ./myapp.risor hello
-Hello, world!
-```
-
-## Functions
-
-### app
-
-```go filename="Function signature"
-app(options map) app
-```
-
-Returns a new app initialized with the given options. A simple app may consist
-of just a `name`, `description`, and `action` function. Call `.run()` on the
-app to run it.
-
-```risor copy filename="Example"
-app := cli.app({
-    name: "myapp",
-    description: "My app description",
-    action: func(ctx) {
-        print("Hello, world!")
-    },
-})
-
-app.run()
-```
-
-The `app` function supports the following options:
-
-- `action func(ctx)`: The action to run when the app is run.
-- `args bool`: Whether this app supports arguments.
-- `args_usage string`: Description of the program argument format.
-- `commands []cli.command`: A list of commands that the app supports.
-- `default_command string`: Name of a command to run if no command names are passed as CLI arguments.
-- `description string`: A short description of the app.
-- `enable_bash_completion bool`: Enable bash completion commands.
-- `flags []cli.flag`: A list of flags that the app supports.
-- `help_name string`: Override for the name of the app in help output.
-- `hide_help bool`: Hide built-in help command and help flag.
-- `hide_help_command bool`: Hide built-in help command but keep help flag (ignored if hide_help is true).
-- `hide_version bool`: Hide built-in version flag and VERSION section of help.
-- `name string`: The name of the app.
-- `usage_text string`: Text to override the USAGE section of help.
-- `usage string`: The usage string for the app.
-- `version string`: The version of the app.
-
-### command
-
-```go filename="Function signature"
-command(options map) command
-```
-
-Returns a new command initialized with the given options. Commands are provided
-to an app via the app's `commands` option.
-
-```go copy filename="Example"
-command := cli.command({
-    name: "add",
-    description: "Add numbers provided as arguments",
-    action: func(ctx) {
-        sum := 0
-        for _, arg := range ctx.args() {
-            sum += int(arg)
-        }
-        print(sum)
-    },
-})
-```
-
-The `command` function supports the following options:
-
-- `action func(ctx)`: The function to call when the command is invoked.
-- `aliases []string`: A list of aliases for the command.
-- `args_usage string`: A short description of the arguments of this command.
-- `args bool`: Whether this command supports arguments.
-- `category string`: The category the command is part of.
-- `custom_help_template string`: Text template for the command help topic.
-- `description string`: A longer explanation of how the command works.
-- `flags []cli.flag`: A list of flags that the command supports.
-- `help_name string`: Full name of command for help, defaults to full command name, including parent commands.
-- `hidden bool`: Hide this command from help or completion.
-- `hide_help_command bool`: Whether to hide the command from the help command.
-- `hide_help bool` Hide the built-in help command and help flag.
-- `name string`: The name of the command.
-- `usage_text string`: Custom text to show in USAGE section of help.
-- `usage string`: A short description of the usage of this command.
-- `use_short_option_handling bool`: Enables short-option handling so the user can combine several single-character bool flags into one.
-
-### flag
-
-```go filename="Function signature"
-flag(options map) flag
-```
-
-Returns a flag that may be used with an app or command. Supported flag types
-include `string`, `int`, `bool`, `float`, `string_slice`, `int_slice`,
-and `float_slice`.
-
-A default value for the flag may be provided using the `value` option. The flag
-type is inferred from the `value` option if a `type` is not specified.
-
-```go copy filename="Example string flag"
-cli.flag({
-    name: "food",
-    aliases: ["f"],
-    usage: "The type of food to eat",
-    env_vars: ["FOOD"], // read from this environment variable, if present
-    value: "pizza",     // default value
-    type: "string",     // flag type: string, int, bool, etc.
-})
-```
-
-```go copy filename="Example int flag"
-cli.flag({
-    name: "count",
-    aliases: ["c"],
-    usage: "The number of items to process",
-    value: 1,
-})
-```
-
-```go copy filename="Example bool flag"
-cli.flag({
-    name: "verbose",
-    aliases: ["v"],
-    usage: "Enable verbose output",
-    value: false,
-})
-```
-
-## Types
-
-### app
-
-An app represents the main entry point for a command-line program. It contains
-commands, is customized with flags, and is executed via `app.run()`.
-
-### ctx
-
-A ctx object is passed through to each handler action in a cli app. It is
-used to retrieve context-specific args and parsed command-line options.
-
-Attributes on the ctx object include:
-
-| Name             | Type                         | Description                                                             |
-| ---------------- | ---------------------------- | ----------------------------------------------------------------------- |
-| args             | func() []string              | Returns the command-line arguments                                      |
-| narg             | func() int                   | Returns the number of arguments                                         |
-| value            | func(name string) object     | Returns the value of the flag corresponding to `name`                   |
-| count            | func(name string) int        | Returns the count of the flag corresponding to `name`                   |
-| flag_names       | func() []string              | Returns the names of all flags used by this context and parent contexts |
-| local_flag_names | func() []string              | Returns the names of all flags used by this context                     |
-| is_set           | func(name string) bool       | Returns true if the flag corresponding to `name` is set                 |
-| set              | func(name string, value obj) | Sets the value of the flag corresponding to `name`                      |
-| num_flags        | func() int                   | Returns the number of flags set                                         |
-| bool             | func(name string) bool       | Returns the value of the bool flag corresponding to `name`              |
-| int              | func(name string) int        | Returns the value of the int flag corresponding to `name`               |
-| string           | func(name string) string     | Returns the value of the string flag corresponding to `name`            |
-| string_slice     | func(name string) []string   | Returns the value of the string slice flag corresponding to `name`      |
-
-### command
-
-A command represents a sub-command of an app. It contains its own flags and
-has an associated action. Commands may have sub-commands.
-
-### flag
-
-A flag is used to parse command-line flags in a cli app. Flags may be specified
-on a cli app directly, as well as on commands.

@@ -42,66 +42,9 @@ client.search_items(repo, { datasource: "firefox", data_text: ["guides and infor
 client.search_items(repo, { datasource: "firefox", semantic_text: "guides" }).json()
 ```
 
-## Client Methods
+## API documentation
 
-### new_client(base_url, repo_id)
-
-Creates a new Timelinize client.
-
-Parameters:
-- `base_url` (string): The base URL of the Timelinize server
-- `repo_id` (string): The repository ID to work with
-
-Returns:
-- A client object with methods to interact with the Timelinize API
-
-### client.import_files(data_source, filenames, processing_options)
-
-Imports files into a Timelinize repository.
-
-Parameters:
-- `data_source` (string): Name of the data source
-- `filenames` (list): List of files to import
-- `processing_options` (map): Options controlling how data is processed during import
-
-### client.open_repositories()
-
-Lists all open repositories.
-
-Returns:
-- JSON response with the open repositories information
-
-### client.file_selector_roots()
-
-Returns the file selector roots.
-
-Returns:
-- JSON response with the file selector roots
-
-### client.open_repository(path, create)
-
-Opens an existing repository or creates a new one if specified.
-
-Parameters:
-- `path` (string): The filesystem path where the repository lives
-- `create` (boolean): Whether to create the repository if it doesn't exist
-
-Returns:
-- JSON response with repository information
-
-### client.search_items(repo, options)
-
-Searches for items in a repository.
-
-Parameters:
-- `repo` (string): Repository ID to search in
-- `options` (map): Search parameters that can include:
-  - `datasource` (string): Filter by data source
-  - `semantic_text` (string): Text to use for semantic search
-  - `data_text` (string): Text to use for exact match search
-
-Returns:
-- JSON response with search results
+See [api.md](/api.md).
 
 ## Examples
 
