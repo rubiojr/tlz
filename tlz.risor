@@ -117,5 +117,25 @@ func new_client(base_url, repo_id) {
     _request("GET", '{base_url}/api/search-items', 0, opts)
   }
 
+  // datasources retrieves available data sources
+  // Parameters: None
+  // Returns: An HTTP response object. Call .json() to parse the response
+  client.datasources = func() {
+    _request("GET", '{base_url}/api/data-sources', 0, {repo: repo_id})
+  }
+
+  // charts returns statistics about the timeline for use in charts
+  // Parameters:
+  // - name: The chart name
+  //
+  // Available chart names:
+  // - datasources
+  // - periodical
+  // - classifications
+  // - recent_data_sources
+  client.charts = func(name) {
+    _request("GET", '{base_url}/api/charts?name={name}&repo_id={repo_id}')
+  }
+
   return client
 }
