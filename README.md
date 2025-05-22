@@ -109,12 +109,14 @@ You can find more examples in the `examples` directory.
 
 ## CLI Usage
 
+### Building the CLI
+
+You'll need [rsx](https://github.com/rubiojr/rsx) installed, then:
+
+`./script/build`
+
 The Timelinize CLI provides command-line access to Timelinize functionality. Run with `--help` for usage information.
 
 ```
-$ risor tlz/cmd/tlz.risor --help
+$ tlz --help
 ```
-
-## License
-
-This project is licensed under the terms of the license included with Timelinize.

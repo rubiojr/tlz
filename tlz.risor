@@ -4,13 +4,6 @@ import cli
 import strings
 import json
 
-// _import_files an import request to the TLZ API
-// Parameters:
-// - base_url: Base URL of the TLZ server
-// - repo_id: Repository ID to import data into
-// - data_source: Name of the data source
-// - filenames: List of files to import
-// - processing_options: Options controlling how data is processed during import
 func _import_files(base_url, repo_id, data_source, filenames, processing_options) {
   url := '{base_url}/api/import'
 
@@ -54,15 +47,6 @@ func _import_files(base_url, repo_id, data_source, filenames, processing_options
     "headers": headers,
     "data": data
   })
-
-  // Print the response
-  //if response.status_code >= 200 && response.status_code < 300 {
-  //  print('Success! Status code:', response.status_code)
-  //  print('Response:', response.text())
-  //} else {
-  //  print('Request failed with status code:', response.status_code)
-  //  print('Response:', response.text())
-  //}
 }
 
 func _request(method, url, headers=0, data=0) {
@@ -76,33 +60,58 @@ func _request(method, url, headers=0, data=0) {
   return fetch(url, opts)
 }
 
+// new_client creates a client for interacting with the Timelinize API
+// Parameters:
+// - base_url: The base URL of the Timelinize server (e.g., "http://localhost:12002")
+// - repo_id: Repository ID to perform operations on (must exist)
+// Returns: A client object with methods to interact with the Timelinize API
 func new_client(base_url, repo_id) {
   client := {
     base_url: base_url,
     repo_id: repo_id,
   }
 
-  # Returns an http.response
+  // import_files imports files into a specified data source in the repository
+  // Parameters:
+  // - data_source: Name of the data source
+  // - filenames: List of files to import
+  // - processing_options: Options controlling how data is processed during import
+  // Returns: An HTTP response object
   client.import_files = func(data_sources, filenames, opts) {
     _import_files(base_url, repo_id, data_sources, filenames, opts)
   }
 
-  # Returns an http.response
+  // open_repositories lists all open repositories
+  // Parameters: None
+  // Returns: An HTTP response object. Call .json() to parse the response
   client.open_repositories = func() {
     _request("GET", '{base_url}/api/open-repositories')
   }
 
-  # Returns an http.response
+  // file_selector_roots retrieves file selector roots from the API
+  // Parameters: None
+  // Returns: An HTTP response object. Call .json() to parse the response
   client.file_selector_roots = func() {
     _request("GET", '{base_url}/api/file-selector-roots')
   }
 
-  # Returns an http.response
+  // open_repository opens an existing repository or creates a new one
+  // Parameters:
+  // - path: The filesystem path where the repository lives
+  // - create: Boolean indicating whether to create the repository if it doesn't exist
+  // Returns: An HTTP response object. Call .json() to parse the response
   client.open_repository = func(path, create) {
     _request("GET", '{base_url}/api/open-repository', 0, {repo_path: path, create: create})
   }
 
-  # Returns an http.response
+  // search_items searches for items in the repository
+  // Parameters:
+  // - repo: Repository ID
+  // - opts: Search parameters object, which can include:
+  //   - datasource: Data source to search within
+  //   - data_text: Array of strings for exact text matching
+  //   - semantic_text: String for semantic search
+  // Returns: An HTTP response object. Call .json() to parse the response
   client.search_items = func(repo, opts) {
     opts.repo = repo
     _request("GET", '{base_url}/api/search-items', 0, opts)
