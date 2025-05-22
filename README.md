@@ -1,6 +1,6 @@
 # Timelinize Risor client and CLI
 
-Timelinize Risor client provides a convenient way to interact with the Timelinize API using the Risor programming language. This package allows you to search, manage and import data into Timelinize repositories.
+[Timelinize](https://github.com/timelinize/timelinize) Risor client provides a convenient way to interact with the Timelinize API using the Risor programming language. This package allows you to search, manage and import data into Timelinize repositories.
 
 ## Installation
 
