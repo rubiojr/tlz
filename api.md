@@ -20,84 +20,85 @@ A client object with methods to interact with the Timelinize API
 new_client(base_url, repo_id)
 ```
 
-# client class
+# Classes
+## client
 
-## import_files
+### import_files
 
 import_files imports files into a specified data source in the repository.
 
-### Parameters
+#### Parameters
 
 - data_source: Name of the data source
 - filenames: List of files to import
 - processing_options: Options controlling how data is processed during import
 
-### Returns
+#### Returns
 
 An HTTP response object
 
-### Example
+#### Example
 
 ```go
 // Example usage of import_files
 client.import_files(data_sources, filenames, opts)
 ```
 
-## open_repositories
+### open_repositories
 
 open_repositories lists all open repositories
 
-### Returns
+#### Returns
 
 An HTTP response object. Call .json() to parse the response
 
-### Example
+#### Example
 
 ```go
 // Example usage of open_repositories
 client.open_repositories()
 ```
 
-## file_selector_roots
+### file_selector_roots
 
 file_selector_roots retrieves file selector roots from the API
 
-### Returns
+#### Returns
 
 An HTTP response object. Call .json() to parse the response
 
-### Example
+#### Example
 
 ```go
 // Example usage of file_selector_roots
 client.file_selector_roots()
 ```
 
-## open_repository
+### open_repository
 
 open_repository opens an existing repository or creates a new one
 
-### Parameters
+#### Parameters
 
 - path: The filesystem path where the repository lives
 - create: Boolean indicating whether to create the repository if it doesn't exist
 
-### Returns
+#### Returns
 
 An HTTP response object. Call .json() to parse the response
 
-### Example
+#### Example
 
 ```go
 // Example usage of open_repository
 client.open_repository(path, create)
 ```
 
-## search_items
+### search_items
 
 search_items searches for items in the repository
 
-### Parameters
+#### Parameters
 
 - repo: Repository ID
 - opts: Search parameters object, which can include:
@@ -105,37 +106,37 @@ search_items searches for items in the repository
 - data_text: Array of strings for exact text matching
 - semantic_text: String for semantic search
 
-### Returns
+#### Returns
 
 An HTTP response object. Call .json() to parse the response
 
-### Example
+#### Example
 
 ```go
 // Example usage of search_items
 client.search_items(repo, opts)
 ```
 
-## datasources
+### datasources
 
 datasources retrieves available data sources
 
-### Returns
+#### Returns
 
 An HTTP response object. Call .json() to parse the response
 
-### Example
+#### Example
 
 ```go
 // Example usage of datasources
 client.datasources()
 ```
 
-## charts
+### charts
 
 charts returns statistics about the timeline for use in charts
 
-### Parameters
+#### Parameters
 
 - name: The chart name
 - datasources
@@ -143,11 +144,11 @@ charts returns statistics about the timeline for use in charts
 - classifications
 - recent_data_sources
 
-### Returns
+#### Returns
 
 No return information available.
 
-### Example
+#### Example
 
 ```go
 // Example usage of charts
