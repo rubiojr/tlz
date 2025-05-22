@@ -2,4 +2,9 @@
 #
 # https://github.com/rubiojr/rsx
 #
-cd cmd/tlz && rsx build -o ../../bin/tlz
+
+mkdir tmp/lib -p
+cp tlz.risor tmp/lib
+cp cmd/tlz/main.risor tmp
+cd tmp && rsx build -o ../bin/tlz
+rm -rf tmp
