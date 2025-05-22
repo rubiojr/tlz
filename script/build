@@ -1,0 +1,5 @@
+#!/bin/sh
+#
+# https://github.com/rubiojr/rsx
+#
+cd cmd/tlz && rsx build -o ../../bin/tlz

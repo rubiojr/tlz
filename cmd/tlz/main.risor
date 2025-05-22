@@ -1,0 +1,189 @@
+import tlz
+
+// create_processing_options builds the processing options structure from CLI flags
+func _create_processing_options(ctx) {
+  processing_options := {
+    "integrity": ctx.bool("integrity"),
+    "overwrite_local_changes": ctx.bool("overwrite-local-changes"),
+    "item_unique_constraints": {
+      "data_source_name": ctx.bool("unique-data-source"),
+      "original_location": ctx.bool("unique-location"),
+      "filename": ctx.bool("unique-filename"),
+      "timestamp": ctx.bool("unique-timestamp"),
+      "coordinates": ctx.bool("unique-coordinates"),
+      "classification_name": ctx.bool("unique-classification"),
+      "data": ctx.bool("unique-data")
+    },
+    "interactive": ctx.bool("interactive") ? true : nil,
+    "estimate_total": ctx.bool("estimate-total")
+  }
+
+  // Parse constraints JSON if provided
+  constraints_json := ctx.string("constraints-json")
+  if constraints_json != "" {
+    try(
+      func() {
+        parsed := json.unmarshal(constraints_json)
+        if type(parsed) == "map" {
+          processing_options["item_unique_constraints"] = parsed
+        }
+      },
+      func(err) {
+        print("Warning: Failed to parse constraints JSON:", err)
+      }
+    )
+  }
+
+  return processing_options
+}
+
+// parse_file_list combines files from --file and --files flags
+func parse_file_list(ctx) {
+  files := []
+
+  // Process comma-separated list from --files flag
+  files_arg := ctx.string("files")
+  if files_arg != "" {
+    for _, f := range strings.split(files_arg, ",") {
+      files.append(strings.trim_space(f))
+    }
+  }
+
+  // Also handle single file flag
+  file := ctx.string("file")
+  if file != "" {
+    files.append(file)
+  }
+
+  return files
+}
+
+// import_action handles the import command
+func import_action(ctx) {
+  base_url := ctx.string("base-url")
+  repo_id := ctx.string("repo-id")
+  data_source := ctx.string("data-source")
+
+  // Get file list
+  files := parse_file_list(ctx)
+
+  if len(files) == 0 {
+    print("Error: At least one file must be specified with --file or --files")
+    return
+  }
+
+  // Create processing options
+  processing_options := _create_processing_options(ctx)
+
+  print('Importing data:')
+  print('  Base URL:', base_url)
+  print('  Repository ID:', repo_id)
+  print('  Data source:', data_source)
+  print('  Files:', files)
+  print('  Processing options:', processing_options)
+
+  tz := tlz.new_client(base_url, repo_id)
+  tz.import_files(data_source, files, processing_options)
+}
+
+cli.app({
+  name: "tlz",
+  description: "TLZ Command Line Tool",
+  version: "0.1.0",
+  commands: [
+    cli.command({
+      name: "import",
+      description: "Import data into TLZ",
+      action: import_action,
+      flags: [
+        cli.flag({
+          name: "base-url",
+          usage: "Base URL of the TLZ server",
+          value: "http://127.0.0.1:12002",
+        }),
+        cli.flag({
+          name: "repo-id",
+          usage: "Repository ID to import data into",
+          value: "35b953ea-5f60-4f4d-86f2-acb1c7a52644",
+        }),
+        cli.flag({
+          name: "data-source",
+          usage: "Name of the data source",
+          value: "firefox",
+        }),
+        cli.flag({
+          name: "file",
+          usage: "File path to import",
+          value: "",
+        }),
+        cli.flag({
+          name: "files",
+          usage: "Comma-separated list of files to import",
+          value: "",
+        }),
+        // Processing options flags
+        cli.flag({
+          name: "integrity",
+          usage: "Enable integrity checking",
+          value: false,
+        }),
+        cli.flag({
+          name: "overwrite-local-changes",
+          usage: "Overwrite local changes",
+          value: false,
+        }),
+        cli.flag({
+          name: "interactive",
+          usage: "Enable interactive mode",
+          value: false,
+        }),
+        cli.flag({
+          name: "estimate-total",
+          usage: "Estimate total items",
+          value: false,
+        }),
+        // Unique constraint flags
+        cli.flag({
+          name: "unique-data-source",
+          usage: "Enable data source name uniqueness constraint",
+          value: false,
+        }),
+        cli.flag({
+          name: "unique-location",
+          usage: "Enable original location uniqueness constraint",
+          value: false,
+        }),
+        cli.flag({
+          name: "unique-filename",
+          usage: "Enable filename uniqueness constraint",
+          value: true,
+        }),
+        cli.flag({
+          name: "unique-timestamp",
+          usage: "Enable timestamp uniqueness constraint",
+          value: true,
+        }),
+        cli.flag({
+          name: "unique-coordinates",
+          usage: "Enable coordinates uniqueness constraint",
+          value: true,
+        }),
+        cli.flag({
+          name: "unique-classification",
+          usage: "Enable classification name uniqueness constraint",
+          value: true,
+        }),
+        cli.flag({
+          name: "unique-data",
+          usage: "Enable data uniqueness constraint",
+          value: true,
+        }),
+        cli.flag({
+          name: "constraints-json",
+          usage: "JSON string for custom item uniqueness constraints",
+          value: "",
+        }),
+      ],
+    }),
+  ],
+}).run()
