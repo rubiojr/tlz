@@ -73,5 +73,5 @@ $ tlz import --file <path-to-file>
 This would import contacts from a VCARD file for example:
 
 ```
-$ tlz import --file /home/rubiojr/tmp/contacts.vcf
+$ tlz import --data-source vcard --file /home/rubiojr/tmp/contacts.vcf
 ```
