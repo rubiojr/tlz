@@ -1,3 +1,5 @@
+__Documentation generated with [risor-docgen](https://github.com/rubiojr/risor-docgen).__
+
 # Global Functions
 
 ## new_client
