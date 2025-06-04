@@ -117,10 +117,19 @@ func new_client(base_url, repo_id) {
   //   - data_text: Array of strings for exact text matching
   //   - semantic_text: String for semantic search
   // Returns: An HTTP response object. Call .json() to parse the response
-  // @object.method
   client.search_items = func(repo, opts) {
     opts.repo = repo
     _request("GET", '{base_url}/api/search-items', 0, opts)
+  }
+
+  // search_entities search for entities in the repository.
+  // Parameters:
+  // - repo: Repository repo_id
+  // - opts: Search options, which can include:
+  // Returns: An HTTP response oebject. Call .json() to parse the response
+  // @object.method
+  client.search_entities = func(repo, opts) {
+    _request("GET", '{base_url}/api/search-entities', 0, opts)
   }
 
   // datasources retrieves available data sources

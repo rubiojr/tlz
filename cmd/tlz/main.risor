@@ -1,4 +1,11 @@
 import tlz
+import rsx
+
+func preflight() {
+  if os.getenv("TIMELINIZE_REPOSITORY") == "" {
+    error("Missing TIMELINIZE_REPOSITORY environment variable.")
+  }
+}
 
 // create_processing_options builds the processing options structure from CLI flags
 func _create_processing_options(ctx) {
@@ -58,8 +65,37 @@ func parse_file_list(ctx) {
   return files
 }
 
+  // search_entities handles the search-entities command
+func search_entities_action(ctx) {
+  preflight()
+  base_url := ctx.string("base-url")
+  repo_id := ctx.string("repo-id")
+  name := ctx.string("name")
+  phone := ctx.string("phone")
+  email := ctx.string("email")
+
+  tz := tlz.new_client(base_url, repo_id)
+  opts := {attributes: []}
+  opts.or_fields = true
+
+  if name != "" {
+    opts.name = [name]
+    opts.attributes.append({value: name})
+  }
+
+  if phone != "" {
+    opts.attributes.append([{name: "phone_number", value: phone}])
+  }
+
+  if email != "" {
+    opts.attributes([{name: "emali_address", value: email}])
+  }
+  print(tz.search_entities(repo_id, opts).json())
+}
+
 // import_action handles the import command
 func search_item_action(ctx) {
+  preflight()
   base_url := ctx.string("base-url")
   repo_id := ctx.string("repo-id")
   text := ctx.string("text")
@@ -86,6 +122,7 @@ func search_item_action(ctx) {
 
 // import_action handles the import command
 func import_action(ctx) {
+  preflight()
   base_url := ctx.string("base-url")
   repo_id := ctx.string("repo-id")
   data_source := ctx.string("data-source")
@@ -140,7 +177,39 @@ cli.app({
         cli.flag({
           name: "repo-id",
           usage: "Repository ID to import data into",
-          value: "35b953ea-5f60-4f4d-86f2-acb1c7a52644",
+          value: rsx.env("TIMELINIZE_REPOSITORY", ""),
+        }),
+      ]
+    }),
+    cli.command({
+      name: "search-entities",
+      description: "Search entities",
+      action: search_entities_action,
+      flags: [
+        cli.flag({
+          name: "base-url",
+          usage: "Base URL of the TLZ server",
+          value: "http://127.0.0.1:12002",
+        }),
+        cli.flag({
+          name: "repo-id",
+          usage: "Repository ID to import data into",
+          value: rsx.env("TIMELINIZE_REPOSITORY", ""),
+        }),
+        cli.flag({
+          name: "name",
+          usage: "Search by entity name",
+          value: ""
+        }),
+        cli.flag({
+          name: "phone",
+          usage: "Search by phone number",
+          value: ""
+        }),
+        cli.flag({
+          name: "email",
+          usage: "Search by email address",
+          value: ""
         }),
       ]
     }),
@@ -157,7 +226,7 @@ cli.app({
         cli.flag({
           name: "repo-id",
           usage: "Repository ID to import data into",
-          value: "35b953ea-5f60-4f4d-86f2-acb1c7a52644",
+          value: rsx.env("TIMELINIZE_REPOSITORY", ""),
         }),
         cli.flag({
           name: "data-source",
