@@ -1,0 +1,3 @@
+#!/bin/sh
+./script/build
+mv bin/tlz ~/.local/bin
