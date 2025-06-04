@@ -63,3 +63,15 @@ The Timelinize CLI provides command-line access to Timelinize functionality. Run
 ```
 $ tlz --help
 ```
+
+### Importing filesystem
+
+```
+$ tlz import --file <path-to-file>
+```
+
+This would import contacts from a VCARD file for example:
+
+```
+$ tlz import --file /home/rubiojr/tmp/contacts.vcf
+```
