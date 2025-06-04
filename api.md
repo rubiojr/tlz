@@ -117,6 +117,27 @@ An HTTP response object. Call .json() to parse the response
 client.search_items(repo, opts)
 ```
 
+### search_entities
+
+search_entities search for entities in the repository.
+
+#### Parameters
+
+- repo: Repository repo_id
+- opts: Search options, which can include:
+- attributes: an attributes map (See [Timelinize source](https://github.com/timelinize/timelinize/blob/457e3f48cc974c49e2c674b7f2c7788268f743d5/timeline/entities.go#L196))
+
+#### Returns
+
+An HTTP response oebject. Call .json() to parse the response
+
+#### Example
+
+```go
+// Example usage of search_entities
+client.search_entities(repo, opts)
+```
+
 ### datasources
 
 datasources retrieves available data sources
