@@ -64,6 +64,30 @@ The Timelinize CLI provides command-line access to Timelinize functionality. Run
 $ tlz --help
 ```
 
+### Searching items
+
+Search for items in the timeline using text search:
+
+```
+$ tlz search --text "your search query"
+```
+
+Or use semantic search:
+
+```
+$ tlz search --semantic "your search query"
+```
+
+### Searching entities
+
+Search for entities (people, contacts, etc.) by name, phone, or email:
+
+```
+$ tlz search-entities --name "John Doe"
+$ tlz search-entities --phone "555-1234"
+$ tlz search-entities --email "john@example.com"
+```
+
 ### Importing files
 
 ```
