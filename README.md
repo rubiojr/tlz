@@ -64,7 +64,7 @@ The Timelinize CLI provides command-line access to Timelinize functionality. Run
 $ tlz --help
 ```
 
-### Importing filesystem
+### Importing files
 
 ```
 $ tlz import --file <path-to-file>
